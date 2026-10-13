@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Repuestos · Analizador local</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header><div><p class="eyebrow">HERRAMIENTA PARA PUBLICACIONES</p><h1>Analizador de repuestos</h1><p class="sub">Una acción para analizar las fotos, buscar coincidencias y generar una ficha editable.</p></div><span class="privacy">Las fotos se envían a Gemini al generar</span></header>
+  <main>
+    <section class="picker card">
+      <div><h2>1. Elegí la carpeta raíz</h2><p>Seleccioná la carpeta que contiene las carpetas numeradas de tus repuestos.</p></div>
+      <label class="button primary">Elegir carpeta<input id="folderInput" type="file" webkitdirectory directory multiple></label>
+      <p id="folderHint" class="hint">El Excel de compatibilidades se busca automáticamente junto al programa o en la carpeta raíz que elijas.</p>
+    </section>
+    <section id="actionBar" class="action-bar hidden"><div class="action-context"><strong id="activeFolderLabel">Sin carpeta</strong><span id="runStatus">Primero pegá una clave de Gemini gratuita</span></div><div class="action-buttons"><input id="apiKey" type="password" autocomplete="off" placeholder="Clave API de Gemini" aria-label="Clave API de Gemini"><a class="key-help" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Obtener clave</a><button id="identify" class="button primary-action" disabled>Generar ficha automática</button></div></section>
+    <section id="workspace" class="workspace hidden">
+      <aside class="card sidebar"><div class="side-heading"><div><h2>Carpetas</h2><p id="folderCount">0 repuestos</p></div></div><div id="folderList" class="folder-list"></div></aside>
+      <section class="card detail" id="detail"><div class="empty"><div class="empty-icon">▧</div><h2>Elegí una carpeta para empezar</h2><p>Vas a poder revisar sus fotos, videos y texto detectado.</p></div></section>
+    </section>
+  </main>
+  <dialog id="publishModal" class="publish-modal" aria-labelledby="publishTitle">
+    <form method="dialog" class="modal-heading"><div><p class="eyebrow">VISTA PREVIA</p><h2 id="publishTitle">Preparar publicación</h2><p>Revisá cada dato. El botón final crea la publicación en tu cuenta.</p></div><button class="icon-button" value="cancel" aria-label="Cerrar">×</button></form>
+    <div class="modal-scroll">
+      <section class="connection-card"><div class="connection-head"><div><h3>Conexión con Mercado Libre</h3><p id="mlConnectionStatus">Aún no conectada</p></div><span id="mlConnectionBadge" class="badge">Desconectada</span></div>
+        <p class="hint">Para publicar hace falta una aplicación de desarrollador de Mercado Libre y autorizar tu cuenta una vez. <a href="https://developers.mercadolibre.com.ar/devcenter" target="_blank" rel="noopener">Abrir DevCenter</a>.</p><div class="connection-fields"><div class="field"><label for="mlClientId">Client ID</label><input id="mlClientId" inputmode="numeric" placeholder="ID de tu aplicación"></div><div class="field"><label for="mlClientSecret">Client Secret</label><input id="mlClientSecret" type="password" autocomplete="off" placeholder="Se mantiene solo en memoria"></div></div>
+        <div class="connection-fields"><div class="field wide"><label for="mlRedirectUri">Redirect URI HTTPS (registrá exactamente esta misma en DevCenter)</label><input id="mlRedirectUri" value="https://mercadolibre.com.ar" autocomplete="url" spellcheck="false"></div></div>
+        <label class="pkce-check"><input id="mlPkce" type="checkbox"> Tengo PKCE activado en la configuración de esta aplicación</label>
+        <div class="connect-actions"><button id="connectMercadoLibre" type="button" class="button secondary">Abrir autorización de Mercado Libre</button><span class="hint">Al terminar, copiá la URL completa de la barra del navegador y pegala abajo.</span></div>
+        <div class="connection-fields"><div class="field wide"><label for="mlAuthorizationReturn">URL después de autorizar</label><input id="mlAuthorizationReturn" placeholder="https://mercadolibre.com.ar/?code=...&state=..."></div></div>
+        <button id="finishMercadoLibre" type="button" class="button secondary">Completar conexión</button>
+      </section>
+      <div id="publishMissing" class="publish-alert hidden" role="alert"></div>
+      <section class="publish-form-grid">
+        <div class="field wide"><label for="publishTitleInput">Título</label><input id="publishTitleInput" maxlength="60"></div>
+        <div class="field wide"><label for="publishDescription">Descripción</label><textarea id="publishDescription"></textarea></div>
+        <div class="field"><label for="publishCategory">Categoría</label><input id="publishCategory" readonly></div>
+        <div class="field"><label for="publishListingType">Tipo de publicación</label><select id="publishListingType"><option value="">Conectá Mercado Libre para consultar opciones</option></select></div>
+        <div class="field"><label for="publishSku">SKU</label><input id="publishSku" placeholder="Código interno"></div>
+        <div class="field"><label for="publishStock">Stock</label><input id="publishStock" type="number" min="0" step="1"></div>
+        <div class="field"><label for="publishPrice">Precio (ARS)</label><input id="publishPrice" type="number" min="1" step="1" placeholder="Ingresá el precio de venta"></div>
+        <div class="field"><label for="publishCondition">Condición</label><select id="publishCondition"><option>Usado</option><option>Nuevo</option><option>Reacondicionado</option></select></div>
+        <div class="field"><label for="publishShippingMode">Tipo de envío</label><select id="publishShippingMode"><option value="me2">Mercado Envíos</option><option value="me1">Mercado Envíos 1</option><option value="not_specified">A convenir</option></select></div>
+        <label class="shipping-check"><input id="publishFreeShipping" type="checkbox"> Ofrecer envío gratis</label>
+        <div class="field"><label for="publishWidth">Ancho del paquete (cm)</label><input id="publishWidth" type="number" min="1" step="1" placeholder="Medir paquete"></div>
+        <div class="field"><label for="publishHeight">Alto del paquete (cm)</label><input id="publishHeight" type="number" min="1" step="1" placeholder="Medir paquete"></div>
+        <div class="field"><label for="publishLength">Largo del paquete (cm)</label><input id="publishLength" type="number" min="1" step="1" placeholder="Medir paquete"></div>
+        <div class="field"><label for="publishWeight">Peso del paquete (g)</label><input id="publishWeight" type="number" min="1" step="1" placeholder="Pesar paquete"></div>
+      </section>
+      <section class="modal-attributes"><h3>Ficha técnica requerida por la categoría</h3><p class="hint">Completá en la ficha principal los requisitos que estén vacíos. Podés ajustar estos valores antes de publicar.</p><div id="publishAttributes" class="required-grid"></div></section>
+      <section class="modal-image-review"><h3>Compatibilidades</h3><p class="hint">Esta versión muestra las compatibilidades en la descripción; la asociación de vehículos mediante el módulo de compatibilidades de Mercado Libre todavía no se envía.</p><textarea id="publishCompatibility" readonly></textarea></section><section class="modal-image-review"><h3>Fotos</h3><p id="publishImageCount" class="hint"></p></section>
+      <p id="publishStatus" class="publish-status" aria-live="polite"></p>
+    </div>
+    <div class="modal-actions"><button id="closePublish" type="button" class="button secondary">Volver a editar</button><button id="submitPublish" type="button" class="button primary-action">Subir a Mercado Libre</button></div>
+  </dialog>
+  <footer>Versión inicial · Las identificaciones son orientativas; confirmá los datos antes de publicar.</footer>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="/app.js"></script>
+</body></html>

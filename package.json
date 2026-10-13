@@ -1,0 +1,7 @@
+{
+  "name": "repuestos-local",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Genera fichas de repuestos desde fotos con Gemini y contraste web",
+  "scripts": { "start": "node server.js" }
+}
