@@ -7,9 +7,15 @@ const root = __dirname;
 let mercadoLibreCredentials = null;
 let mercadoLibreToken = null;
 const pendingOAuth = new Map();
+const appPassword = process.env.APP_PASSWORD || '';
 const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8' };
 const server = http.createServer((req, res) => {
   const pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
+  if (appPassword) {
+    const header = String(req.headers.authorization || '');
+    const supplied = header.startsWith('Basic ') ? Buffer.from(header.slice(6), 'base64').toString().split(':').slice(1).join(':') : '';
+    if (supplied !== appPassword) { res.writeHead(401, { 'WWW-Authenticate': 'Basic realm="Repuestos", charset="UTF-8"', 'Cache-Control': 'no-store' }); return res.end('Ingresá la clave de acceso configurada para esta app.'); }
+  }
   if (pathname === '/api/generate' && req.method === 'POST') return generateListing(req, res);
   if (pathname === '/api/vehicle-catalog' && req.method === 'GET') return serveVehicleCatalog(res);
   if (pathname === '/api/ml/connect' && req.method === 'POST') return beginMercadoLibreOAuth(req, res);
@@ -17,7 +23,10 @@ const server = http.createServer((req, res) => {
   if (pathname === '/api/ml/status' && req.method === 'GET') return mercadoLibreStatus(res);
   if (pathname === '/api/ml/listing-types' && req.method === 'GET') return getListingTypes(req, res);
   if (pathname === '/api/ml/publish' && req.method === 'POST') return publishOnMercadoLibre(req, res);
-  if (pathname === '/oauth/callback' && req.method === 'GET') return mercadoLibreCallback(req, res);
+  if (pathname === '/oauth/callback' && req.method === 'GET') {
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer' });
+    return res.end('<!doctype html><meta charset="utf-8"><title>Autorización recibida</title><p>Mercado Libre devolvió la autorización. Copiá la URL completa de esta página y pegala en el modal de Repuestos para terminar la conexión.</p>');
+  }
   const requested = pathname === '/' ? '/index.html' : pathname;
   const file = path.resolve(root, `.${requested}`);
   if (!file.startsWith(root + path.sep) && file !== path.join(root, 'index.html')) {
@@ -29,7 +38,7 @@ const server = http.createServer((req, res) => {
     res.end(data);
   });
 });
-const redirectUri = 'https://mercadolibre.com.ar';
+const redirectUri = process.env.ML_REDIRECT_URI || 'https://localhost.com/redirect';
 async function beginMercadoLibreOAuth(req,res) {
   try {
     const {clientId,clientSecret,redirectUri:requestedRedirect=redirectUri,pkce=false}=await readJson(req,64*1024);
@@ -352,4 +361,4 @@ async function generateListing(req, res) {
   }
 }
 const port = Number(process.env.PORT) || 4173;
-server.listen(port, '127.0.0.1', () => console.log(`Repuestos local listo en http://localhost:${port}`));
+server.listen(port, '0.0.0.0', () => console.log(`Repuestos listo en el puerto ${port}`));

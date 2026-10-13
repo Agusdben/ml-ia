@@ -189,6 +189,7 @@ function openPublicationPreview(){
   setField('publishCondition',document.querySelector('#condition').value);const dimensions=parseDimensions(document.querySelector('#packageDimensions').value);setField('publishWidth',dimensions[0]);setField('publishHeight',dimensions[1]);setField('publishLength',dimensions[2]);setField('publishWeight',parseMeasurement(document.querySelector('#packageWeight').value,true));
   setField('publishCompatibility',document.querySelector('#compatibilities').value);
   const photos=(groups.get(selectedKey)||[]).filter(isImage).slice(0,10);document.querySelector('#publishImageCount').textContent=`Se subirán ${photos.length} fotos de la carpeta ${selectedKey}. Los videos no se incluyen en esta primera versión.`;
+  const redirectInput=document.querySelector('#mlRedirectUri');if(!redirectInput.value.trim())redirectInput.value=window.location.protocol==='https:'?window.location.origin+'/oauth/callback':'https://localhost.com/redirect';
   renderPublishAttributes();publishModal.showModal();checkMercadoLibreConnection();
 }
 detail.addEventListener('click',event=>{if(event.target.closest('#openPublish'))openPublicationPreview();});
@@ -197,7 +198,7 @@ document.querySelector('#connectMercadoLibre').addEventListener('click',async()=
   const popup=window.open('about:blank','mercadolibre-oauth');if(!popup){document.querySelector('#mlConnectionStatus').textContent='El navegador bloqueó la ventana de autorización.';return;}
   const status=document.querySelector('#mlConnectionStatus');status.textContent='Preparando la autorización…';
   try {
-    const clientId=document.querySelector('#mlClientId').value.trim(),clientSecret=document.querySelector('#mlClientSecret').value.trim(),redirectUri=document.querySelector('#mlRedirectUri').value.trim(),pkce=document.querySelector('#mlPkce').checked;
+    const clientId=document.querySelector('#mlClientId').value.trim(),clientSecret=document.querySelector('#mlClientSecret').value.trim(),redirectInput=document.querySelector('#mlRedirectUri'),redirectUri=redirectInput.value.trim()||(window.location.protocol==='https:'?window.location.origin+'/oauth/callback':'https://localhost.com/redirect'),pkce=document.querySelector('#mlPkce').checked;redirectInput.value=redirectUri;
     const response=await fetch('/api/ml/connect',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({clientId,clientSecret,redirectUri,pkce})}),data=await response.json();if(!response.ok)throw new Error(data.error||'No pude iniciar la autorización.');
     document.querySelector('#mlRedirectUri').value=data.redirectUri;popup.location=data.url;status.textContent='Autorizá en la pestaña nueva. Después copiá la URL de retorno completa y pegala aquí.';
   } catch(error){if(!popup.closed)popup.close();status.textContent=error.message;}

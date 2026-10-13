@@ -24,10 +24,10 @@
     <div class="modal-scroll">
       <section class="connection-card"><div class="connection-head"><div><h3>Conexión con Mercado Libre</h3><p id="mlConnectionStatus">Aún no conectada</p></div><span id="mlConnectionBadge" class="badge">Desconectada</span></div>
         <p class="hint">Para publicar hace falta una aplicación de desarrollador de Mercado Libre y autorizar tu cuenta una vez. <a href="https://developers.mercadolibre.com.ar/devcenter" target="_blank" rel="noopener">Abrir DevCenter</a>.</p><div class="connection-fields"><div class="field"><label for="mlClientId">Client ID</label><input id="mlClientId" inputmode="numeric" placeholder="ID de tu aplicación"></div><div class="field"><label for="mlClientSecret">Client Secret</label><input id="mlClientSecret" type="password" autocomplete="off" placeholder="Se mantiene solo en memoria"></div></div>
-        <div class="connection-fields"><div class="field wide"><label for="mlRedirectUri">Redirect URI HTTPS (registrá exactamente esta misma en DevCenter)</label><input id="mlRedirectUri" value="https://mercadolibre.com.ar" autocomplete="url" spellcheck="false"></div></div>
+        <div class="connection-fields"><div class="field wide"><label for="mlRedirectUri">Redirect URI HTTPS (registrá exactamente esta misma en DevCenter)</label><input id="mlRedirectUri" value="" placeholder="Se completa con el dominio HTTPS de la app" autocomplete="url" spellcheck="false"></div></div>
         <label class="pkce-check"><input id="mlPkce" type="checkbox"> Tengo PKCE activado en la configuración de esta aplicación</label>
         <div class="connect-actions"><button id="connectMercadoLibre" type="button" class="button secondary">Abrir autorización de Mercado Libre</button><span class="hint">Al terminar, copiá la URL completa de la barra del navegador y pegala abajo.</span></div>
-        <div class="connection-fields"><div class="field wide"><label for="mlAuthorizationReturn">URL después de autorizar</label><input id="mlAuthorizationReturn" placeholder="https://mercadolibre.com.ar/?code=...&state=..."></div></div>
+        <div class="connection-fields"><div class="field wide"><label for="mlAuthorizationReturn">URL después de autorizar</label><input id="mlAuthorizationReturn" placeholder="https://tu-app.onrender.com/oauth/callback?code=...&state=..."></div></div>
         <button id="finishMercadoLibre" type="button" class="button secondary">Completar conexión</button>
       </section>
       <div id="publishMissing" class="publish-alert hidden" role="alert"></div>

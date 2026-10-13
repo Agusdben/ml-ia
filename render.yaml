@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: repuestos-local
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: APP_PASSWORD
+        sync: false

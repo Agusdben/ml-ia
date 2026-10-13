@@ -20,7 +20,7 @@ Mercado Libre recomienda no poner la condición nuevo/usado en el título y most
 ## Publicar en Mercado Libre
 
 1. Creá una aplicación en el DevCenter de Mercado Libre.
-2. Registrá como URL de retorno la dirección exacta que muestra el modal (por defecto, `https://mercadolibre.com.ar`).
+2. Registrá como URL de retorno la dirección exacta que muestra el modal. En Render usa el dominio HTTPS del servicio más `/oauth/callback`; en local, el modal propone `https://localhost.com/redirect`.
 3. En el modal ingresá Client ID y Client Secret, registrá la misma Redirect URI HTTPS y activá PKCE solo si también está activado en DevCenter. Autorizá la cuenta y pegá la URL completa de retorno para finalizar. Las credenciales y tokens se mantienen en memoria y hay que reconectar si se reinicia el servidor.
 4. Revisá el tipo de publicación disponible para tu cuenta y categoría, el precio, stock, condición, envío, SKU y ficha técnica. Las medidas deben ser las del paquete ya embalado y el peso se expresa en gramos; no se inventan desde fotos sin escala.
 5. El botón sube las fotos y crea el ítem. La descripción se agrega en una segunda llamada; si esa llamada falla, el modal informa que el ítem ya se creó. Los videos no se suben todavía.
@@ -34,3 +34,12 @@ La asociación de compatibilidades por ID de vehículo no se envía a Mercado Li
 - La cuota puede cambiar. Medidas y peso no se inventan: quedan vacíos si ninguna fuente confiable los informa.
 - Los resultados web pueden ser incompletos. Revisá especialmente los años/motores y las IDs antes de publicar.
 - La app todavía no asocia compatibilidades mediante el módulo de vehículos ni extrae fotogramas de videos.
+
+
+## Publicar en Render desde GitHub
+
+Este repo incluye `render.yaml`. En Render elegí **New + > Blueprint**, conectá el repositorio y seguí el asistente. El Blueprint usa el comando `npm start`, el puerto de Render y solicita la variable secreta `APP_PASSWORD` para proteger la app. Elegí una contraseña larga y guardala. Cada push a la rama vinculada dispara un deploy.
+
+Cuando Render te dé el dominio HTTPS (por ejemplo, `https://repuestos-local.onrender.com`), abrí la app y conectá Mercado Libre. El campo Redirect URI se completa como `https://TU-DOMINIO.onrender.com/oauth/callback`; registrá exactamente ese valor en DevCenter. El callback muestra una página para copiar la URL completa y pegarla en el modal.
+
+El plan Free se duerme tras 15 minutos sin tráfico y la conexión OAuth actual se guarda en memoria; si el servicio duerme o reinicia, habrá que volver a conectar Mercado Libre.
