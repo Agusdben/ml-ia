@@ -244,7 +244,7 @@ identifyButton.addEventListener('click', async () => {
     const images=await Promise.all(files.map(jpegBase64));
     status.textContent='Analizando imágenes, leyendo texto y códigos…';
     const response=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json','x-gemini-api-key':apiKeyInput.value.trim()},body:JSON.stringify({images,vehicleRows})});
-    const data=await response.json();
+    const responseText=await response.text();let data;try{data=JSON.parse(responseText);}catch{throw new Error('El servidor '+new URL(response.url).host+' respondió HTML en /api/generate (HTTP '+response.status+'). En Render, revisá los Logs del Web Service para ese momento.');}
     if(!response.ok) throw new Error(data.error||`Error ${response.status}`);
     const x=data.listing||{};
     setField('title',x.title); setField('description',x.description); setField('partName',x.product_type); setField('partCode',x.part_number);
